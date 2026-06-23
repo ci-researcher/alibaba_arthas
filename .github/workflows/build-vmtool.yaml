@@ -9,42 +9,58 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
-          java-version: "11"
-          distribution: "adopt"
+          java-version: "${{ matrix.java }}"
+          distribution: "temurin"
       - name: Build with Maven
         run: ./mvnw -V -ntp package -DskipTests
       - uses: actions/upload-artifact@v4
         with:
           name: lib-linux-x64
           path: arthas-vmtool/target/libArthasJniLibrary-x64.so
+    strategy:
+      matrix:
+        java:
+          - 16
+          - 17
+          - 21
+          - 25
+      fail-fast: false
   build-mac:
     runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
-          java-version: "11"
-          distribution: "adopt"
+          java-version: "${{ matrix.java }}"
+          distribution: "temurin"
       - name: Build with Maven
         run: ./mvnw -V -ntp package -DskipTests
       - uses: actions/upload-artifact@v4
         with:
           name: lib-mac
           path: arthas-vmtool/target/libArthas*
+    strategy:
+      matrix:
+        java:
+          - 16
+          - 17
+          - 21
+          - 25
+      fail-fast: false
   build-windows:
     runs-on: windows-2022
 
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
-          java-version: "11"
-          distribution: "adopt"
+          java-version: "${{ matrix.java }}"
+          distribution: "temurin"
       - name: Build with Maven
         run: ./mvnw -V -ntp package -DskipTests
       - uses: actions/upload-artifact@v4
@@ -52,6 +68,14 @@ jobs:
           name: lib-windows
           path: arthas-vmtool/target/*.dll
 
+    strategy:
+      matrix:
+        java:
+          - 16
+          - 17
+          - 21
+          - 25
+      fail-fast: false
   build-linux-aarch64:
     # The host should always be Linux
     runs-on: ubuntu-latest
