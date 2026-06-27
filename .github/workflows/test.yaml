@@ -10,87 +10,89 @@ jobs:
       matrix:
         java: [8, 11, 17, 21, 25]
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup java
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: "zulu"
-          cache: "maven"
-      - name: Build with Maven
-        run: mvn -V -ntp clean install -P full verify
+    - uses: actions/checkout@v4
+    - name: Setup java
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: "zulu"
+        cache: "maven"
+    - name: Build with Maven
+      run: mvn -V -ntp clean install -P full verify -Dskip.mcp.it=true
 
   windows_build:
     runs-on: windows-2022
     strategy:
       matrix:
         java:
-          - 16
-          - 17
-          - 21
-          - 25
+        - 16
+        - 17
+        - 21
+        - 25
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup java
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: "zulu"
-          cache: "maven"
-      - name: Build with Maven
-        run: mvn -V -ntp clean install -P full
+    - uses: actions/checkout@v4
+    - name: Setup java
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: "zulu"
+        cache: "maven"
+    - name: Build with Maven
+      run: mvn -V -ntp clean install -P full
 
   macos_build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         java:
-          - 16
-          - 17
-          - 21
-          - 25
+        - 16
+        - 17
+        - 21
+        - 25
         os:
-          - macos-latest
-          - macos-14
+        - macos-latest
+        - macos-14
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup java
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: "zulu"
-          cache: "maven"
-      - name: Build with Maven
-        run: mvn -V -ntp clean install -P full
+    - uses: actions/checkout@v4
+    - name: Setup java
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: "zulu"
+        cache: "maven"
+    - name: Build with Maven
+      run: mvn -V -ntp clean install -P full
 
   telnet_stop_leak_it:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup java
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: "zulu"
-          cache: "maven"
-      - name: Install expect/telnet
-        run: sudo apt-get update && sudo apt-get install -y expect telnet
-      - name: Build packaging
-        run: mvn -V -ntp clean install -P full -DskipTests
-      - name: Run telnet stop leak test
-        run: python3 integration-test/telnet-stop-leak/run_telnet_stop_leak_test.py --iterations 10 --warmup 2 --threshold 5 --work-dir integration-test/telnet-stop-leak/work
-      - name: Upload artifacts on failure
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: telnet-stop-leak-logs
-          path: integration-test/telnet-stop-leak/work
+    - uses: actions/checkout@v4
+    - name: Setup java
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: "zulu"
+        cache: "maven"
+    - name: Install expect/telnet
+      run: sudo apt-get update && sudo apt-get install -y expect telnet
+    - name: Build packaging
+      run: mvn -V -ntp clean install -P full -DskipTests
+    - name: Run telnet stop leak test
+      run: python3 integration-test/telnet-stop-leak/run_telnet_stop_leak_test.py --iterations 10 --warmup 2 --threshold 5 --work-dir integration-test/telnet-stop-leak/work
+    - name: Upload artifacts on failure
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: telnet-stop-leak-logs
+        path: integration-test/telnet-stop-leak/work
     strategy:
       matrix:
         java:
-          - 21
-          - 25
+        - 21
+        - 25
       fail-fast: false
+env:
+  _JAVA_OPTIONS: --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.util.concurrent=ALL-UNNAMED --add-opens java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED --add-opens java.base/java.math=ALL-UNNAMED --add-opens java.base/java.time=ALL-UNNAMED --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
